@@ -1,7 +1,8 @@
 
 import json
 import spacy
-from utils import dismiss_mutually_exclusive, get_most_similar, \
+from utils import dismiss_mutually_exclusive, get_most_similar,\
+    get_online_lessons_by_overall_percentage_in_categories, \
     get_simmilarity_marix, sort_by_simmilarity_value, summarize_coef
 
 
@@ -18,9 +19,9 @@ class RecommendationGenerator:
 
             online_tag = tags.pop()
 
-            categories = await self.user_dal.get_categories_based_on_labels(tags, [])
+            categories = await self.user_dal.get_categories_based_on_labels_no_exclude(tags)
 
-            categories = self.user_dal.get_online_lessons_by_overall_percentage_in_categories(categories, online_tag)
+            categories = get_online_lessons_by_overall_percentage_in_categories(categories, online_tag)
 
             recommendation_ids = [categry.get('id') for categry in categories]
 

@@ -100,6 +100,26 @@ class UserDal:
         except Exception as e:
             self.logger.error(e)
 
+    async def get_categories_based_on_labels_no_exclude(self, tags):
+        try:
+            cursor = self.postgres.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+            cursor.setinputsizes(psycopg2.extensions.AsIs)
+
+            query = '''
+                SELECT *
+                FROM categories
+                WHERE tags ?| %s
+            '''
+                # AND is_online = false
+
+            cursor.execute(query, (tags,))
+            result = cursor.fetchall()
+            cursor.close()
+            self.postgres.commit()
+            return result
+        except Exception as e:
+            self.logger.error(e)
+
     async def get_all_users_cursor(self):
         try:
             cursor = self.postgres.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
