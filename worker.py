@@ -19,7 +19,14 @@ async def init_worker(logger):
     while True:
         job = await cache_dal.get('worker:job')
         if job:
-            id = job.decode()
+            if job.get('job') == 'new':
+                await generator.generate_recommendations_for_new(job.get('user_id'), job.get('tags'))
+                return
+
+            if job.get('job') == 'all':
+                await generator.generate_all()
+                return
+
             await generator.generate_recommendatations(id)
         logger.info('fetching job...')
         await asyncio.sleep(2)

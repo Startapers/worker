@@ -98,3 +98,54 @@ def dismiss_mutually_exclusive(simmilar_categories):
             if category[1] not in exlude_online:
                 result.append(category)
     return result
+
+
+def fill_array(array1, array2, online=False):
+    total_count = len(array1) + len(array2)
+    count_from_array1 = round(total_count * 0.7)
+
+    new_array = None
+
+    if (online):
+        new_array = array1[:count_from_array1] + array2[count_from_array1:]
+    else:
+        new_array = array2[:count_from_array1] + array1[count_from_array1:]
+    return new_array
+
+
+def get_online_lessons_by_overall_percentage_in_categories(categories, tag):
+    online_lessons = []
+    offline_lessons = []
+    overall_len = len(categories)
+
+    while True:
+        doc = categories.pop()
+        if 'ОНЛАЙН' in doc.get('name'):
+            online_lessons.append(doc)
+        else:
+            offline_lessons.append(doc)
+
+        if not len(categories):
+            break
+
+    result = []
+    if (tag == "ONLINEMIXED"):
+
+        for idx in range(overall_len):
+            offline = offline_lessons.pop()
+
+            if offline:
+                result.append(offline)
+
+            online = online_lessons.pop()
+
+            if online:
+                result.append(online)
+
+    if (tag == "ONLINE"):
+        result = fill_array(online_lessons, offline_lessons, True)
+
+    if (tag == "OFFLINE"):
+        result = fill_array(online_lessons, offline_lessons)
+
+    return result

@@ -1,6 +1,8 @@
 import json
 import spacy
 import random
+import sys
+
 from spacy.tokens import DocBin
 from spacy.training.example import Example
 from tqdm import tqdm
@@ -46,15 +48,17 @@ def train_spacy(data, iterations):
                 print(losses)
     return (nlp)
 
-def train():
-    TRAIN_DATA = load_data('./train_data/all.json')
+
+def train(train_data, ouput_dir):
+    TRAIN_DATA = load_data(train_data)
     nlp = train_spacy(TRAIN_DATA, 200)
-    nlp.to_disk('./output/gen_all_3')
+    nlp.to_disk(ouput_dir)
 
 
-def get_train_binary():
+def make_train_binary(train_data, ouput_dir):
     nlp = spacy.blank('ru')
-    with open('./train_data/all.json', 'r') as file:
+    with open(train_data, 'r') as file:
+    # with open('./train_data/all.json', 'r') as file:
         data = json.load(file)['annotations']
 
     TRAIN_DATA = []
@@ -80,4 +84,20 @@ def get_train_binary():
         doc.ents = ents
         db.add(doc)
 
-    db.to_disk("./prepared/train_all.spacy")
+    # db.to_disk("./prepared/train_all.spacy")
+    db.to_disk(ouput_dir)
+
+
+if len(sys.argv) < 4:
+    print("Usage: python script.py <name> <file1_path> <file2_path>")
+    sys.exit(1)
+
+name = sys.argv[1]
+file1_path = sys.argv[2]
+file2_path = sys.argv[3]
+
+if name == "train":
+    train(file1_path, file2_path)
+
+if name == "make":
+    make_train_binary(file1_path, file2_path)

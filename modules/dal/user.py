@@ -45,6 +45,7 @@ class UserDal:
             cursor.execute(query)
             result = cursor.fetchall()
             cursor.close()
+            self.postgres.commit()
             return result
         except Exception as e:
             self.logger.error(e)
@@ -72,6 +73,7 @@ class UserDal:
             cursor.execute(query)
             result = cursor.fetchall()
             cursor.close()
+            self.postgres.commit()
             return result
         except Exception as e:
             self.logger.error(e)
@@ -93,9 +95,27 @@ class UserDal:
             cursor.execute(query, (tags, *exluded_ids))
             result = cursor.fetchall()
             cursor.close()
+            self.postgres.commit()
             return result
         except Exception as e:
             self.logger.error(e)
+
+    async def get_all_users_cursor(self):
+        try:
+            cursor = self.postgres.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+            cursor.setinputsizes(psycopg2.extensions.AsIs)
+            
+            query = '''
+                SELECT id
+                FROM users
+            '''
+
+            cursor.execute(query)
+            return cursor
+
+        except Exception as e:
+            self.logger.error(e)
+            return
 
 
     async def check_constarint_tags(self, ids):
@@ -155,6 +175,7 @@ class UserDal:
                 to_add.append(res[0].get('id'))
             
             cursor.close()
+            self.postgres.commit()
             return to_add
         except Exception as e:
             self.logger.error(e)
